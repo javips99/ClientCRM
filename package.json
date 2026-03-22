@@ -1,0 +1,20 @@
+{
+  "name": "clientcrm",
+  "version": "1.0.0",
+  "description": "Tests para ClientCRM",
+  "scripts": {
+    "test":    "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "jest":                    "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFiles":      ["./tests/js/setup.js"],
+    "testMatch":       ["**/tests/js/**/*.test.js"],
+    "coverageDirectory": "tests/coverage",
+    "collectCoverageFrom": ["assets/js/**/*.js"]
+  }
+}

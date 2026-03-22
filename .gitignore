@@ -1,0 +1,25 @@
+# Credenciales de base de datos — NUNCA subir
+api/config.php
+
+# Script de setup — borrar después de ejecutar
+setup.php
+
+# Dependencias y builds
+node_modules/
+vendor/
+dist/
+
+# Variables de entorno
+.env
+.env.local
+
+# Logs
+*.log
+error_log
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

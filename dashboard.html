@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClientCRM — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+  <!-- ── Navbar ─────────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="dashboard.html" class="nav-brand">📊 ClientCRM</a>
+
+    <ul class="nav-links">
+      <li><a href="dashboard.html" class="nav-link active">Dashboard</a></li>
+      <li><a href="clientes.html"  class="nav-link">Clientes</a></li>
+    </ul>
+
+    <div class="nav-user">
+      <span class="nav-user-name" id="navUserName"></span>
+      <button class="btn btn-ghost btn-sm" id="btnLogout">Salir</button>
+    </div>
+  </nav>
+
+  <!-- ── Contenido principal ────────────────────────────────── -->
+  <main class="main-content">
+
+    <!-- Cabecera de página -->
+    <div class="page-header">
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-subtitle">Resumen de tu actividad comercial</p>
+    </div>
+
+    <!-- Tarjetas de métricas -->
+    <div class="stats-grid" id="statsGrid">
+      <!-- Generadas por JS -->
+      <div class="stat-card total">
+        <div class="stat-icon">👥</div>
+        <div class="stat-label">Total clientes</div>
+        <div class="stat-value" id="statTotal">—</div>
+      </div>
+      <div class="stat-card activas">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-label">Oportunidades activas</div>
+        <div class="stat-value" id="statActivas">—</div>
+      </div>
+      <div class="stat-card ganadas">
+        <div class="stat-icon">✅</div>
+        <div class="stat-label">Ventas ganadas</div>
+        <div class="stat-value" id="statGanadas">—</div>
+      </div>
+      <div class="stat-card pipeline">
+        <div class="stat-icon">💶</div>
+        <div class="stat-label">Valor del pipeline</div>
+        <div class="stat-value" id="statPipeline">—</div>
+      </div>
+    </div>
+
+    <!-- Gráfico + tabla reciente -->
+    <div class="dashboard-grid">
+
+      <!-- Gráfico de distribución -->
+      <div class="chart-card">
+        <h3>Distribución por estado</h3>
+        <div class="chart-container">
+          <canvas id="chartEstados"></canvas>
+        </div>
+        <!-- Leyenda personalizada -->
+        <div id="chartLegend" style="margin-top:1rem; display:flex; flex-direction:column; gap:0.4rem; font-size:0.8rem;"></div>
+      </div>
+
+      <!-- Tabla de clientes recientes -->
+      <div class="table-wrapper">
+        <div class="table-header">
+          <span class="table-title">Últimos clientes añadidos</span>
+          <a href="clientes.html" class="btn btn-ghost btn-sm">Ver todos →</a>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Estado</th>
+                <th class="text-right">Valor</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyRecientes">
+              <tr class="loading-row">
+                <td colspan="3"><span class="spinner"></span> Cargando…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /.dashboard-grid -->
+  </main>
+
+  <!-- Toasts -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/dashboard.js"></script>
+</body>
+</html>
