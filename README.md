@@ -13,7 +13,7 @@ Permite registrar clientes con sus datos de contacto, asignarles un estado de op
 (caliente / tibio / frío / ganado) y registrar notas de actividad por cliente.
 El dashboard ofrece métricas clave del pipeline en tiempo real sin recargar la página.
 
-[📂 Ver repositorio](https://github.com/javips99/ClientCRM) · [🌐 Demo en vivo](#demo)
+[📂 Ver repositorio](https://github.com/javips99/ClientCRM) · [🌐 Demo en vivo](https://javips99.github.io/ClientCRM/)
 
 </div>
 
@@ -30,10 +30,19 @@ El dashboard ofrece métricas clave del pipeline en tiempo real sin recargar la 
 
 ---
 
-## 📸 Captura de pantalla
+## 📸 Capturas de pantalla
 
-> *(Añade aquí una captura del dashboard o un GIF de la app en funcionamiento)*
-> `![ClientCRM Dashboard](docs/screenshot.png)`
+<div align="center">
+
+| Login | Dashboard |
+|:---:|:---:|
+| ![Login](docs/login.png) | ![Dashboard](docs/dashboard.png) |
+
+| Lista de clientes | Detalle del cliente |
+|:---:|:---:|
+| ![Clientes](docs/clientes.png) | ![Detalle](docs/detalle.png) |
+
+</div>
 
 ---
 
