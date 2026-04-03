@@ -19,6 +19,17 @@ El dashboard ofrece métricas clave del pipeline en tiempo real sin recargar la 
 
 ---
 
+## 🔐 Acceso demo
+
+| Campo | Valor |
+|-------|-------|
+| **Usuario** | admin@clientcrm.com |
+| **Contraseña** | admin123 |
+
+> Los datos son ficticios y se reinician al recargar la página.
+
+---
+
 ## 📸 Captura de pantalla
 
 > *(Añade aquí una captura del dashboard o un GIF de la app en funcionamiento)*

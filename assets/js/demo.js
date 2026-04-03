@@ -2,13 +2,14 @@
  * demo.js — Capa mock para modo demo (GitHub Pages)
  *
  * Sobreescribe window.apiCall() definida en utils.js.
- * Todos los datos viven en memoria durante la sesión del navegador.
+ * Todos los datos viven en sessionStorage durante la sesión del navegador,
+ * por lo que persisten entre páginas y se reinician al cerrar sesión.
  *
  * Cargado DESPUÉS de utils.js y ANTES de auth.js en todos los HTML.
  * En producción (con PHP), este archivo no existe, así que no afecta.
  *
  * Endpoints simulados:
- *   api/auth.php     → check / login / logout
+ *   api/auth.php      → check / login / logout
  *   api/dashboard.php → métricas + recientes
  *   api/clientes.php  → GET list, GET ?id, POST, PUT, DELETE ?id
  *   api/notas.php     → GET ?cliente_id, POST, DELETE ?id
@@ -25,14 +26,14 @@
     email:  'admin@clientcrm.com',
   };
 
-  // ── IDs autoincrementales ─────────────────────────────────────────────────
+  // ── Claves de sessionStorage ──────────────────────────────────────────────
 
-  let _nextClienteId = 100;
-  let _nextNotaId    = 200;
+  const SK_CLIENTES = '_demo_clientes';
+  const SK_NOTAS    = '_demo_notas';
 
-  // ── Datos iniciales de clientes ───────────────────────────────────────────
+  // ── Datos iniciales (solo se usan si sessionStorage está vacío) ───────────
 
-  const _clientes = [
+  const INIT_CLIENTES = [
     {
       id: 1, nombre: 'María García', empresa: 'TechSolutions S.L.',
       email: 'maria@techsolutions.es', telefono: '612 345 678',
@@ -83,9 +84,7 @@
     },
   ];
 
-  // ── Notas iniciales ───────────────────────────────────────────────────────
-
-  const _notas = [
+  const INIT_NOTAS = [
     {
       id: 1, cliente_id: 1, usuario_id: 1, autor: 'Admin Demo',
       contenido: 'Llamada inicial. Muy interesado en el plan Enterprise. Pide propuesta formal para la próxima semana.',
@@ -118,9 +117,57 @@
     },
   ];
 
-  // ── Estado de sesión ──────────────────────────────────────────────────────
+  // ── Arrays en memoria — cargados desde sessionStorage o datos iniciales ───
+  //
+  // Al navegar entre páginas el IIFE se re-ejecuta, pero sessionStorage
+  // persiste durante toda la sesión del navegador, por lo que los cambios
+  // (crear, editar, eliminar) sobreviven a la navegación.
 
-  let _loggedIn = false;
+  let _clientes = _loadOrInit(SK_CLIENTES, INIT_CLIENTES);
+  let _notas    = _loadOrInit(SK_NOTAS,    INIT_NOTAS);
+
+  function _loadOrInit(key, defaults) {
+    try {
+      const stored = sessionStorage.getItem(key);
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return defaults.map(item => ({ ...item })); // copia superficial
+  }
+
+  /** Persiste ambos arrays en sessionStorage tras cada operación de escritura. */
+  function _save() {
+    try {
+      sessionStorage.setItem(SK_CLIENTES, JSON.stringify(_clientes));
+      sessionStorage.setItem(SK_NOTAS,    JSON.stringify(_notas));
+    } catch {}
+  }
+
+  // ── IDs autoincrementales — derivados del máximo existente ────────────────
+
+  function _nextClienteId() {
+    return Math.max(0, ..._clientes.map(c => c.id)) + 1;
+  }
+
+  function _nextNotaId() {
+    return Math.max(0, ..._notas.map(n => n.id)) + 1;
+  }
+
+  // ── Estado de sesión ──────────────────────────────────────────────────────
+  //
+  // Se inicializa leyendo la caché de sessionStorage que auth.js escribe al
+  // hacer login. Así, al navegar entre páginas, el mock recupera el estado
+  // correcto aunque el IIFE se re-ejecute desde cero en cada carga.
+
+  let _loggedIn = (function () {
+    try {
+      const cached = sessionStorage.getItem('_authCache');
+      if (cached) {
+        const { timestamp, data } = JSON.parse(cached);
+        if (Date.now() - timestamp < 5 * 60 * 1000 && data?.autenticado) return true;
+      }
+    } catch {}
+    return false;
+  })();
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -206,14 +253,16 @@
           sessionStorage.setItem('usuario', JSON.stringify(DEMO_USER));
           return { success: true };
         }
-        const err = new Error('Credenciales incorrectas. Usa admin@clientcrm.com / admin123');
-        throw err;
+        throw new Error('Credenciales incorrectas. Usa admin@clientcrm.com / admin123');
       }
 
       if (action === 'logout' && method === 'POST') {
         _loggedIn = false;
+        // Limpiar sesión y datos persistidos — la próxima sesión parte de cero
         sessionStorage.removeItem('_authCache');
         sessionStorage.removeItem('usuario');
+        sessionStorage.removeItem(SK_CLIENTES);
+        sessionStorage.removeItem(SK_NOTAS);
         return { success: true };
       }
     }
@@ -252,7 +301,7 @@
       // POST — crear cliente
       if (method === 'POST') {
         const nuevo = {
-          id:             _nextClienteId++,
+          id:             _nextClienteId(),
           nombre:         (body.nombre         || '').trim(),
           empresa:        (body.empresa         || '').trim() || null,
           email:          (body.email           || '').trim() || null,
@@ -263,6 +312,7 @@
           creado_en:      new Date().toISOString().replace('T', ' ').slice(0, 19),
         };
         _clientes.unshift(nuevo);
+        _save();
         return { success: true, id: nuevo.id };
       }
 
@@ -279,6 +329,7 @@
           estado:         body.estado           || _clientes[idx].estado,
           valor_estimado: Number(body.valor_estimado) || 0,
         };
+        _save();
         return { success: true };
       }
 
@@ -292,6 +343,7 @@
         for (let i = _notas.length - 1; i >= 0; i--) {
           if (_notas[i].cliente_id === id) _notas.splice(i, 1);
         }
+        _save();
         return { success: true };
       }
     }
@@ -311,7 +363,7 @@
       // POST — añadir nota
       if (method === 'POST') {
         const nueva = {
-          id:         _nextNotaId++,
+          id:         _nextNotaId(),
           cliente_id: Number(body.cliente_id),
           usuario_id: 1,
           autor:      DEMO_USER.nombre,
@@ -319,6 +371,7 @@
           creado_en:  new Date().toISOString().replace('T', ' ').slice(0, 19),
         };
         _notas.push(nueva);
+        _save();
         return { success: true, id: nueva.id };
       }
 
@@ -328,6 +381,7 @@
         const idx = _notas.findIndex(n => n.id === id);
         if (idx === -1) throw new Error('Nota no encontrada.');
         _notas.splice(idx, 1);
+        _save();
         return { success: true };
       }
     }
